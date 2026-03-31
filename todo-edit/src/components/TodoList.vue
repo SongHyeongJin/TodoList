@@ -19,7 +19,12 @@ const props = defineProps({
   },
 });
 // 부모에게 보낼 이벤트를 선언한다.
-const emit = defineEmits(['delete-todo', 'toggle-todo']);
+const emit = defineEmits([
+  'delete-todo',
+  'toggle-todo',
+  'toggle-edit',
+  'edit-todo',
+]);
 // deleteTodo는 삭제할 항목의 id를 부모에게 전달한다.
 const deleteTodo = (id) => {
   emit('delete-todo', id);
@@ -27,6 +32,12 @@ const deleteTodo = (id) => {
 // toggleTodo는 완료 상태를 바꿀 항목의 id를 부모에게 전달한다.
 const toggleTodo = (id) => {
   emit('toggle-todo', id);
+};
+const toggleEditTodo = (id) => {
+  emit('toggle-edit', id);
+};
+const editTodo = (id, msg) => {
+  emit('edit-todo', id, msg);
 };
 </script>
 
@@ -51,7 +62,29 @@ const toggleTodo = (id) => {
         <span>완료</span>
       </label>
 
-      <span class="todo-item-text">{{ item.msg }}</span>
+      <span class="todo-item-text" v-if="item.isEdit == false">{{
+        item.msg
+      }}</span>
+      <input
+        type="text"
+        v-else
+        :value="item.msg"
+        @keydown.enter="editTodo(item.id, $event.target.value)"
+      />
+      <button
+        class="todo-edit-btn"
+        v-if="item.isEdit == true"
+        @click="editTodo(item.id, $event.target.previousElementSibling.value)"
+      >
+        수정완료
+      </button>
+      <span
+        class="material-symbols-outlined"
+        @click="toggleEditTodo(item.id)"
+        v-else
+      >
+        edit
+      </span>
 
       <button class="todo-delete-btn" @click="deleteTodo(item.id)">삭제</button>
     </div>
